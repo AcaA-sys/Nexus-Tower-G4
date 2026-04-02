@@ -1,1 +1,9 @@
-Work in Progress. Designing CAN FD Slave Node (3 Steppers, 2 Vacuum, 4 Valves). Based on STM32G431.
+Work in Progress. 
+
+While the Master H7 handles trajectory planning, the Nexus-Tower node offloads local head functions via CAN FD:
+- MCU: STM32G431 (Advanced Analog & FDCAN).
+- Axis Z: Integrated FOC/Servo support for soft-landing placement.
+- Axes C1/C2: Dual TMC2209 for NEMA 8/11 nozzles (UART control).
+- Pneumatics: 4x Valve outputs + 2x High-speed Analog Vacuum sensing (ADC over CAN).
+- IO: 3x Endstops + 1x PWM Light control.
+
