@@ -1,9 +1,65 @@
 Work in Progress. 
 
-While the Master H7 handles trajectory planning, the Nexus-Tower node offloads local head functions via CAN FD:
-- MCU: STM32G431 (Advanced Analog & FDCAN).
-- Option 1 Axis Z: Integrated FOC/Servo support for soft-landing placement. + Axes C1/C2: Dual TMC2209 for NEMA 8/11 nozzles (UART control).
-- Option 1 Motion: 3x Stepper (Z, C1, C2) via TMC2209.
-- Pneumatics: 4x Valve outputs + 2x High-speed Analog Vacuum sensing (ADC over CAN).
-- IO: 3x Endstops + 1x PWM Light control.
+# 🗼 NEXUS-TOWER v6.0 Final
+> **High-Performance 6-Axis Stepper Controller based on STM32G431**
+
+![License](https://shields.io)
+![MCU](https://shields.io)
+![Power](https://shields.io)
+
+## 📋 Обзор проекта
+**NEXUS-TOWER** — это специализированный контроллер для систем высокоточного перемещения (Pick-and-Place, роборуки), оптимизированный под совместную работу двигателей NEMA 11 и NEMA 17. Версия 6.0 получила продвинутую систему защиты питания и расширенную периферию.
+
+---
+
+## ⚡ Силовая часть и Защита
+Система спроектирована для работы в тяжелых условиях с высокими обратными токами (Back-EMF).
+
+*   **Smart Protection**: 
+    *   🛡️ **Reverse Polarity**: Защита от переполюсовки на N-канальном MOSFET `AGM6014A` в линии GND.
+    *   🔥 **Active Brake Chopper**: Программное управление сбросом энергии торможения.
+        *   *Ключ:* `CSD18543Q3A` NexFET.
+        *   *Драйвер:* `UCC27517` (4A peak).
+        *   *Нагрузка:* 2x 40Ω 2W резистора (параллельно).
+    *   **TVS Barrier**: Двойные супрессоры `SMCJ36A` для защиты драйверов.
+*   **Power Cascade**: 
+    *   `24V` → `5V` (DC-DC `K7805M-1000`) 
+    *   `5V` → `3.3V` (LDO `AP2112K`) — ультрачистое питание для АЦП.
+
+---
+
+## 🏎️ Управление движением
+Контроллер управляет 6 осями с полной обратной связью по UART.
+
+
+| Тип моторов | Кол-во | Драйвер | Шина управления |
+| :--- | :---: | :--- | :--- |
+| **NEMA 11** (28HS3306) | 4 | TMC2225-SA | USART2 (Group A) |
+| **NEMA 17** (42STH40) | 2 | TMC2225-SA | USART1 (Group B) |
+
+*   **Особенности**: 
+    *   Поддержка `StealthChop2` для бесшумной работы.
+    *   `StallGuard` для безсенсорного поиска дома.
+    *   Разделение UART на две группы для повышения отказоустойчивости шины.
+
+---
+
+## 🔌 Периферия и Интерфейсы
+*   **Vacuum Control**: 4 быстрых канала АЦП (фильтрация RC) для датчиков вакуумного захвата.
+*   **Pneumatics**: 8 каналов управления клапанами через силовой массив `TD62083`.
+*   **Cooling**: Интеллектуальный разъем вентилятора с PWM и Tacho-метром (`PB1`).
+*   **Expansion**: 14-pin FFC разъем (`Wurth 68611414122`) для подключения внешних модулей по **I2C** и **ADC**.
+
+---
+
+## 🛠️ Распиновка (Ключевые узлы)
+```yaml
+MCU: STM32G431RBT6 (LQFP64)
+---------------------------
+Brake Control:  PB0 (PWM)
+Brake Monitor:  PB12 (ADC)
+Fan Tacho:      PB1
+Status LEDs:    3 Channels
+Expansion Port: I2C1 + ADC Channels
+
 
