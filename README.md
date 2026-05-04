@@ -27,6 +27,11 @@ Work in Progress.
 
 ---
 
+## Motion Control Logic
+Open-Loop Design: The 6 auxiliary axes on the Tower-G4 operate in Step/Dir mode without encoders. This minimizes CAN FD bus traffic, as the node only receives target coordinates and does not stream high-frequency position feedback. This architectural choice leaves 80% of bandwidth available for high-precision vibration sensing via the ADXL355.
+
+---
+
 ## 🛠️ Распиновка (Ключевые узлы)
 ```yaml
 MCU: STM32G431RBT6 (LQFP64)
